@@ -1,1 +1,83 @@
-This file is main index file having html code for main webpage.
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Investment Dashboard</title>
+    <style>
+      /* Basic styling */
+      #investment-options button {
+        margin-right: 10px;
+      }
+      #investment-details > div {
+        display: none;
+        margin-top: 15px;
+        border: 1px solid #000;
+        padding: 10px;
+      }
+      body {
+        background-color: #e0f2f1;
+      }
+    </style>
+    <script>
+      function fetchCustomerID() {
+        // Dummy function to emulate fetching customer ID from MongoDB
+        return "10111";
+      }
+
+      function toggleDetails(investmentType) {
+        // First, hide all details
+        var allDetails = document.querySelectorAll("#investment-details > div");
+        allDetails.forEach(function (detail) {
+          detail.style.display = "none";
+        });
+
+        // Then, show the details for the selected investment type
+        var detailsToShow = document.getElementById(
+          investmentType + "-details"
+        );
+        if (detailsToShow.style.display === "none") {
+          detailsToShow.style.display = "block";
+        } else {
+          detailsToShow.style.display = "none";
+        }
+      }
+
+      window.onload = function () {
+        document.getElementById("customer-id").textContent = fetchCustomerID();
+      };
+    </script>
+  </head>
+  <body>
+    <h2>Customer <span id="customer-id"></span></h2>
+
+    <div id="investment-options">
+      <button onclick="toggleDetails('mutual-funds')">Mutual Funds</button>
+      <button onclick="toggleDetails('fixed-deposits')">Fixed Deposits</button>
+      <button onclick="toggleDetails('stocks')">Stocks</button>
+      <button onclick="toggleDetails('loans')">Loans</button>
+    </div>
+
+    <div id="investment-details">
+      <div id="mutual-funds-details">
+        <!-- Mutual Funds Details -->
+        Details about Mutual Funds...
+      </div>
+
+      <div id="fixed-deposits-details">
+        <!-- Fixed Deposits Details -->
+        Details about Fixed Deposits...
+      </div>
+
+      <div id="stocks-details">
+        <!-- Stocks Details -->
+        Details about Stocks...
+      </div>
+
+      <div id="loans-details">
+        <!-- Loans Details -->
+        Details about Loans...
+      </div>
+    </div>
+  </body>
+</html>
