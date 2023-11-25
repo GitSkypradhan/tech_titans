@@ -1,0 +1,15 @@
+{
+  "name": "tech_titans-1",
+  "version": "1.0.0",
+  "description": "<i>*Gapanti Bappa Morya!!! *</i> <br> Tech_Titans team Collab repo for GrowthGenie Hackathon 2023 <br> <b>Step 1: </b> Create the  Database as  per provided Data Schema",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^6.3.0"
+  }
+}
