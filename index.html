@@ -4,10 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Investment Dashboard</title>
+    <!--Inclduing chart.js library-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       /* Basic styling */
-      #investment-options button {
+      .tab {
+        display: inline-block;
         margin-right: 10px;
+        padding: 10px;
+        cursor: pointer;
+        border: 1px solid #000;
+        background-color: #fff;
+      }
+      .tab.active {
+        background-color: #d0e0f0;
       }
       #investment-details > div {
         display: none;
@@ -18,44 +28,115 @@
       body {
         background-color: #e0f2f1;
       }
+      #chart-container {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 300px;
+        height: 300px;
+      }
     </style>
     <script>
-      function fetchCustomerID() {
-        // Dummy function to emulate fetching customer ID from MongoDB
-        return "10111";
+      function fetchCustomerIDs() {
+        // Dummy function to emulate fetching customer IDs from MongoDB
+        return ["10111", "10112", "10113", "10114"];
+      }
+
+      function setupTabs() {
+        var tabs = document.querySelectorAll(".tab");
+        tabs.forEach(function (tab) {
+          tab.addEventListener("click", function () {
+            var activeTab = document.querySelector(".tab.active");
+            if (activeTab) {
+              activeTab.classList.remove("active");
+            }
+            tab.classList.add("active");
+            var investmentType = tab.getAttribute("data-type");
+            toggleDetails(investmentType);
+          });
+        });
       }
 
       function toggleDetails(investmentType) {
-        // First, hide all details
-        var allDetails = document.querySelectorAll("#investment-details > div");
-        allDetails.forEach(function (detail) {
-          detail.style.display = "none";
-        });
-
-        // Then, show the details for the selected investment type
-        var detailsToShow = document.getElementById(
-          investmentType + "-details"
-        );
-        if (detailsToShow.style.display === "none") {
-          detailsToShow.style.display = "block";
-        } else {
-          detailsToShow.style.display = "none";
+        var customerId = document.getElementById("customer-select").value;
+        if (!customerId) {
+          alert("Please select a customer ID.");
+          return;
         }
+        // Rest of the function remains the same
+        updateChart(customerId);
       }
 
       window.onload = function () {
-        document.getElementById("customer-id").textContent = fetchCustomerID();
+        var customerSelect = document.getElementById("customer-select");
+        var customerIds = fetchCustomerIDs();
+        customerIds.forEach(function (id) {
+          var option = document.createElement("option");
+          option.value = id;
+          option.textContent = id;
+          customerSelect.appendChild(option);
+        });
+
+        setupTabs();
       };
+
+      function updateChart(customerId) {
+        //display chart
+        var data = {
+          "mutual funds": 30,
+          "fixed deposits": 20,
+          Stocks: 25,
+          Loans: 25,
+        };
+        var ctx = document.getElementById("investment-chart").getContext("2d");
+
+        new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: Object.keys(data), // These are the names for each slice of the pie.
+            datasets: [
+              {
+                label: "Investment Distribution",
+                data: Object.values(data), // These are the values for each slice of the pie.
+                backgroundColor: [
+                  // Colors for each slice.
+                  "rgba(255, 99, 132, 0.2)",
+                  "rgba(54, 162, 235, 0.2)",
+                  "rgba(255, 206, 86, 0.2)",
+                  "rgba(75, 192, 192, 0.2)",
+                ],
+                borderColor: [
+                  // Border colors for each slice.
+                  "rgba(255, 99, 132, 1)",
+                  "rgba(54, 162, 235, 1)",
+                  "rgba(255, 206, 86, 1)",
+                  "rgba(75, 192, 192, 1)",
+                ],
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+          },
+        });
+      }
     </script>
   </head>
   <body>
-    <h2>Customer <span id="customer-id"></span></h2>
+    <h2>
+      Select Customer:
+      <select id="customer-select">
+        <option value="">Select ID</option>
+      </select>
+    </h2>
 
     <div id="investment-options">
-      <button onclick="toggleDetails('mutual-funds')">Mutual Funds</button>
-      <button onclick="toggleDetails('fixed-deposits')">Fixed Deposits</button>
-      <button onclick="toggleDetails('stocks')">Stocks</button>
-      <button onclick="toggleDetails('loans')">Loans</button>
+      <div class="tab" data-type="mutual-funds">Mutual Funds</div>
+      <div class="tab" data-type="fixed-deposits">Fixed Deposits</div>
+      <div class="tab" data-type="stocks">Stocks</div>
+      <div class="tab" data-type="loans">Loans</div>
     </div>
 
     <div id="investment-details">
@@ -63,21 +144,10 @@
         <!-- Mutual Funds Details -->
         Details about Mutual Funds...
       </div>
-
-      <div id="fixed-deposits-details">
-        <!-- Fixed Deposits Details -->
-        Details about Fixed Deposits...
-      </div>
-
-      <div id="stocks-details">
-        <!-- Stocks Details -->
-        Details about Stocks...
-      </div>
-
-      <div id="loans-details">
-        <!-- Loans Details -->
-        Details about Loans...
-      </div>
+      <!-- ... other details divs ... -->
+    </div>
+    <div id="chart-container">
+      <canvas id="investment-chart"></canvas>
     </div>
   </body>
 </html>
