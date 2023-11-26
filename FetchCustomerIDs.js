@@ -2,29 +2,20 @@ const mongodbConnection = require('./MongodbConnection.js');
 
 async function fetchCustomerIDs() {
     try {
-        const db = mongodbConnection.getDb();
-        if (!db) {
-            throw new Error("No database connection.");
-        }
+        await mongodbConnection.connectToMongoDB;
 
+        const db = mongodbConnection.getDb;
+        // Perform your database operations here
         const collection = db.collection("Customer"); // Replace with your collection name
-
-        // Fetch customer IDs
+            // Fetch customer IDs
         const customers = await collection.find({}, { projection: { CUSTOMERID: 1 } }).toArray();
         const customerIDs = customers.map(customer => customer.CUSTOMERID.toString());
-
-        console.log("Customer IDs:", customerIDs);
         return customerIDs;
-    } catch (err) {
-        console.error("Error fetching customer IDs:", err);
+    } catch (error) {
+        console.error("An error occurred:", error);
     }
 }
 
-// Connect to MongoDB and then fetch customer IDs
-mongodbConnection.connectToServer((err) => {
-    if (err) {
-        console.error(err);
-        return;
-    }
-    fetchCustomerIDs();
-});
+   let customerID = fetchCustomerIDs();
+   console.log(customerID);
+   mongodbConnection.closeConnection;
