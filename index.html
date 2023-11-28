@@ -37,9 +37,18 @@
       }
     </style>
     <script>
-      function fetchCustomerIDs() {
+      async function fetchCustomerIDs() {
         // Dummy function to emulate fetching customer IDs from MongoDB
-        return ["10111", "10112", "10113", "10114"];
+        try {
+          let response = await fetch("http://localhost:3000/customers");
+          let customers = await response.json();
+          // Extracting the CUSTOMERID from each customer object in the response
+          let customerIDs = customers.map((customer) => customer.CUSTOMERID);
+          return customerIDs;
+        } catch (error) {
+          console.error("Error fetching customer IDs:", error);
+        }
+        // return ["10111", "10112", "10113", "10114"];
       }
 
       function setupTabs() {
@@ -64,40 +73,89 @@
           return;
         }
         // Rest of the function remains the same
-        updateChart(customerId);
+        // updateChart(customerId);
       }
 
-      window.onload = function () {
+      window.onload = async function () {
         var customerSelect = document.getElementById("customer-select");
-        var customerIds = fetchCustomerIDs();
+        var customerIds = await fetchCustomerIDs();
         customerIds.forEach(function (id) {
           var option = document.createElement("option");
           option.value = id;
           option.textContent = id;
           customerSelect.appendChild(option);
         });
-
         setupTabs();
+        customerSelect.addEventListener("change", async function () {
+          var selectedCustomerId = this.value;
+          if (selectedCustomerId) {
+            try {
+              let url =
+                "http://localhost:3000/api/iacc/active/" + selectedCustomerId;
+              let response = await fetch(url);
+              let data = await response.json();
+              let investment_percentage = calculateInvestmentPercentages(data);
+              if (investment_percentage) {
+                updateChart(investment_percentage);
+              }
+            } catch (error) {
+              console.error("Error fetching data:", error);
+            }
+          }
+        });
       };
 
-      function updateChart(customerId) {
+      function calculateInvestmentPercentages(data) {
+        let totalInvestment = 0;
+        const investmentByType = {};
+        // Sum the total investment and group by account type
+        data.activeAccounts.forEach((account) => {
+          totalInvestment += account.INVESTMENTPORTFOLIO;
+          if (investmentByType[account.ACCOUNTTYPE]) {
+            investmentByType[account.ACCOUNTTYPE] +=
+              account.INVESTMENTPORTFOLIO;
+          } else {
+            investmentByType[account.ACCOUNTTYPE] = account.INVESTMENTPORTFOLIO;
+          }
+        });
+
+        // Calculate the percentage for each account type
+        const percentages = Object.keys(investmentByType).map((type) => {
+          return {
+            accountType: type,
+            percentage:
+              ((investmentByType[type] / totalInvestment) * 100).toFixed(2) +
+              "px",
+          };
+        });
+        // return percentages;
+        return percentages;
+      }
+      // Variable to hold the chart instance
+      let myPieChart = null;
+
+      function updateChart(invest_data) {
         //display chart
-        var data = {
-          "mutual funds": 30,
-          "fixed deposits": 20,
-          Stocks: 25,
-          Loans: 25,
-        };
         var ctx = document.getElementById("investment-chart").getContext("2d");
 
-        new Chart(ctx, {
+        // Destroy the existing chart if it exists
+        if (myPieChart) {
+          myPieChart.destroy();
+          myPieChart = null; // Reset the variable
+        }
+
+        // Extracting data for Chart.js
+        let labels = invest_data.map((item) => item.accountType);
+        let dataPoints = invest_data.map((item) => parseFloat(item.percentage));
+
+        myPieChart = new Chart(ctx, {
           type: "pie",
           data: {
-            labels: Object.keys(data), // These are the names for each slice of the pie.
+            labels: labels, // These are the names for each slice of the pie.
             datasets: [
               {
                 label: "Investment Distribution",
-                data: Object.values(data), // These are the values for each slice of the pie.
+                data: dataPoints, // These are the values for each slice of the pie.
                 backgroundColor: [
                   // Colors for each slice.
                   "rgba(255, 99, 132, 0.2)",
@@ -119,6 +177,19 @@
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: "Investments",
+                font: {
+                  size: 18,
+                },
+                padding: {
+                  top: 10,
+                  bottom: 30,
+                },
+              },
+            },
           },
         });
       }

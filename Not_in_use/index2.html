@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Investment Dashboard</title>
+    <!--Including chart.js library-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      /* Basic reset for padding and margin */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f4f7f6;
+        color: #333;
+        line-height: 1.6;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .header {
+        border-bottom: 2px solid #e1e1e1;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+      }
+
+      .chart-container {
+        width: 100%;
+        height: 400px;
+      }
+
+      .tabs {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+      }
+
+      .tab {
+        flex: 1;
+        text-align: center;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        background-color: #e7e7e7;
+        transition: background-color 0.3s;
+      }
+
+      .tab:not(:last-child) {
+        margin-right: 10px;
+      }
+
+      .tab.active,
+      .tab:hover {
+        background-color: #d0e0f0;
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .tabs {
+          flex-direction: column;
+        }
+
+        .tab {
+          margin-bottom: 10px;
+        }
+
+        .chart-container {
+          height: 300px;
+        }
+      }
+    </style>
+    <script>
+      // Your existing JavaScript code
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>
+          Select Customer:
+          <select id="customer-select">
+            <option value="">Select ID</option>
+            <!-- Customer IDs will be populated here -->
+          </select>
+        </h2>
+      </div>
+      <div class="chart-container">
+        <canvas id="investment-chart"></canvas>
+      </div>
+      <div class="tabs">
+        <div class="tab active" data-type="mutual-funds">Mutual Funds</div>
+        <div class="tab" data-type="fixed-deposits">Fixed Deposits</div>
+        <div class="tab" data-type="stocks">Stocks</div>
+        <div class="tab" data-type="loans">Loans</div>
+      </div>
+      <div id="investment-details">
+        <!-- Investment Details Sections -->
+        <div id="mutual-funds-details" style="display: block">
+          Details about Mutual Funds...
+        </div>
+        <!-- ... Other details sections will go here ... -->
+      </div>
+    </div>
+    <script>
+      // Your existing JavaScript code
+    </script>
+  </body>
+</html>
