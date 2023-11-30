@@ -4,10 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Investment Dashboard</title>
-    <!--Including chart.js library-->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      /* Basic reset for padding and margin */
+      /* Basic reset for styles */
       * {
         margin: 0;
         padding: 0;
@@ -15,107 +14,308 @@
       }
 
       body {
-        font-family: "Arial", sans-serif;
-        background-color: #f4f7f6;
-        color: #333;
-        line-height: 1.6;
+        font-family: Arial, sans-serif;
+        background-color: #e0f2f1;
         padding: 20px;
-      }
-
-      .container {
-        max-width: 1100px;
-        margin: auto;
-        padding: 20px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
 
       .header {
-        border-bottom: 2px solid #e1e1e1;
-        padding-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
         margin-bottom: 20px;
+      }
+
+      .header h2 {
+        margin-bottom: 10px;
+      }
+
+      #investment-options {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        margin: 0 5px;
+      }
+
+      .tab.active {
+        background-color: #d0e0f0;
+        border-color: blue;
+      }
+
+      .section-separator {
+        border: 0;
+        height: 1px;
+        background: #333;
+        background-image: linear-gradient(to right, #ccc, #333, #ccc);
+        margin: 20px 0;
+      }
+
+      #investment-details > div {
+        display: none;
+        padding: 10px;
+        border: 1px solid #ccc;
+        margin-top: 10px;
       }
 
       .chart-container {
         width: 100%;
-        height: 400px;
+        max-width: 300px;
+        margin: auto;
       }
 
-      .tabs {
-        display: flex;
-        justify-content: space-around;
-        margin-bottom: 20px;
-      }
-
-      .tab {
-        flex: 1;
-        text-align: center;
-        border: none;
-        padding: 10px;
-        cursor: pointer;
-        background-color: #e7e7e7;
-        transition: background-color 0.3s;
-      }
-
-      .tab:not(:last-child) {
-        margin-right: 10px;
-      }
-
-      .tab.active,
-      .tab:hover {
-        background-color: #d0e0f0;
-      }
-
-      /* Responsive design */
-      @media (max-width: 768px) {
-        .tabs {
-          flex-direction: column;
-        }
-
-        .tab {
-          margin-bottom: 10px;
-        }
-
-        .chart-container {
-          height: 300px;
-        }
+      canvas {
+        width: 100% !important;
+        max-width: 400px;
+        height: auto !important;
       }
     </style>
-    <script>
-      // Your existing JavaScript code
-    </script>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h2>
-          Select Customer:
-          <select id="customer-select">
-            <option value="">Select ID</option>
-            <!-- Customer IDs will be populated here -->
-          </select>
-        </h2>
-      </div>
+    <div class="header">
+      <h2>
+        Select Customer:
+        <select id="customer-select">
+          <option value="">Select ID</option>
+        </select>
+      </h2>
       <div class="chart-container">
+        <canvas id="myDonutChart"></canvas>
         <canvas id="investment-chart"></canvas>
       </div>
-      <div class="tabs">
-        <div class="tab active" data-type="mutual-funds">Mutual Funds</div>
-        <div class="tab" data-type="fixed-deposits">Fixed Deposits</div>
-        <div class="tab" data-type="stocks">Stocks</div>
-        <div class="tab" data-type="loans">Loans</div>
-      </div>
-      <div id="investment-details">
-        <!-- Investment Details Sections -->
-        <div id="mutual-funds-details" style="display: block">
-          Details about Mutual Funds...
-        </div>
-        <!-- ... Other details sections will go here ... -->
-      </div>
     </div>
+
+    <hr class="section-separator" />
+
+    <div id="investment-options">
+      <div class="tab" data-type="mutual-funds">Mutual Funds</div>
+      <div class="tab" data-type="fixed-deposits">Fixed Deposits</div>
+      <div class="tab" data-type="stocks">Stocks</div>
+      <div class="tab" data-type="loans">Loans</div>
+    </div>
+
+    <div id="investment-details">
+      <div id="mutual-funds-details">Details about Mutual Funds...</div>
+      <div id="fixed-deposits-details">Details about Fixed Deposits...</div>
+      <div id="stocks-details">Details about Stocks...</div>
+      <div id="loans-details">Details about Loans...</div>
+    </div>
+
     <script>
-      // Your existing JavaScript code
+      // ... (JavaScript functions remain the same)
+
+      function updateAdditionalChart(dataType) {
+        // Get the context of the canvas
+        var ctx = document.getElementById("myDonutChart").getContext("2d");
+        // Add logic to create and update the additional chart based on dataType
+        // This is where you'll use Chart.js to create a new chart
+        // For example, if dataType is 'mutual-funds', fetch the mutual funds data and update the chart
+        // This is a placeholder function, you need to implement the logic to update the chart based on the dataType
+        var myDonutChart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: [
+              "Asian Paints",
+              "Titan Company",
+              "Wipro",
+              "Eicher Motors",
+              "Tata Motors",
+            ],
+            datasets: [
+              {
+                label: "Investment Distribution",
+                data: [8898, 14250, 40409, 15124, 35816], // Replace these numbers with your actual data
+                backgroundColor: [
+                  "rgba(255, 99, 132, 0.2)",
+                  "rgba(54, 162, 235, 0.2)",
+                  "rgba(255, 206, 86, 0.2)",
+                  "rgba(75, 192, 192, 0.2)",
+                  "rgba(153, 102, 255, 0.2)",
+                ],
+                borderColor: [
+                  "rgba(255, 99, 132, 1)",
+                  "rgba(54, 162, 235, 1)",
+                  "rgba(255, 206, 86, 1)",
+                  "rgba(75, 192, 192, 1)",
+                  "rgba(153, 102, 255, 1)",
+                ],
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            cutoutPercentage: 50,
+            // ...
+            // Other options to customize your chart
+          },
+        });
+      }
+
+      function toggleDetails(investmentType) {
+        var allDetailDivs = document.querySelectorAll(
+          "#investment-details > div"
+        );
+        allDetailDivs.forEach((div) => {
+          div.style.display = "none"; // Hide all detail divs
+        });
+
+        var activeDetailDiv = document.querySelector(
+          "#" + investmentType + "-details"
+        );
+        if (activeDetailDiv) {
+          activeDetailDiv.style.display = "block"; // Show the active detail div
+        }
+        // Call relevant API here to fetch and display data for the selected investment type
+        updateAdditionalChart(investmentType);
+      }
+
+      // ... (Rest of the JavaScript remains the same)
+
+      window.onload = async function () {
+        var customerSelect = document.getElementById("customer-select");
+        var customerIds = await fetchCustomerIDs();
+        customerIds.forEach(function (id) {
+          var option = document.createElement("option");
+          option.value = id;
+          option.textContent = id;
+          customerSelect.appendChild(option);
+        });
+        setupTabs();
+        customerSelect.addEventListener("change", async function () {
+          var selectedCustomerId = this.value;
+          if (selectedCustomerId) {
+            try {
+              let url =
+                "http://localhost:3000/api/iacc/active/" + selectedCustomerId;
+              let response = await fetch(url);
+              let data = await response.json();
+              let investment_percentage = calculateInvestmentPercentages(data);
+              if (investment_percentage) {
+                updateChart(investment_percentage);
+              }
+            } catch (error) {
+              console.error("Error fetching data:", error);
+            }
+          }
+        });
+      };
+
+      async function fetchCustomerIDs() {
+        // Dummy function to emulate fetching customer IDs from MongoDB
+        try {
+          let response = await fetch("http://localhost:3000/customers");
+          let customers = await response.json();
+          // Extracting the CUSTOMERID from each customer object in the response
+          let customerIDs = customers.map((customer) => customer.CUSTOMERID);
+          return customerIDs;
+        } catch (error) {
+          console.error("Error fetching customer IDs:", error);
+        }
+        // return ["10111", "10112", "10113", "10114"];
+      }
+
+      function setupTabs() {
+        var tabs = document.querySelectorAll(".tab");
+        tabs.forEach(function (tab) {
+          tab.addEventListener("click", function () {
+            var activeTab = document.querySelector(".tab.active");
+            if (activeTab) {
+              activeTab.classList.remove("active");
+            }
+            tab.classList.add("active");
+            var investmentType = tab.getAttribute("data-type");
+            toggleDetails(investmentType);
+          });
+        });
+      }
+
+      function calculateInvestmentPercentages(data) {
+        let totalInvestment = 0;
+        const investmentByType = {};
+        // Sum the total investment and group by account type
+        data.activeAccounts.forEach((account) => {
+          totalInvestment += account.INVESTMENTPORTFOLIO;
+          if (investmentByType[account.ACCOUNTTYPE]) {
+            investmentByType[account.ACCOUNTTYPE] +=
+              account.INVESTMENTPORTFOLIO;
+          } else {
+            investmentByType[account.ACCOUNTTYPE] = account.INVESTMENTPORTFOLIO;
+          }
+        });
+
+        // Calculate the percentage for each account type
+        const percentages = Object.keys(investmentByType).map((type) => {
+          return {
+            accountType: type,
+            percentage: (
+              (investmentByType[type] / totalInvestment) *
+              100
+            ).toFixed(2),
+          };
+        });
+        return percentages;
+      }
+
+      let myPieChart = null;
+
+      function updateChart(invest_data) {
+        var ctx = document.getElementById("investment-chart").getContext("2d");
+
+        if (myPieChart) {
+          myPieChart.destroy();
+        }
+
+        let labels = invest_data.map((item) => item.accountType);
+        let dataPoints = invest_data.map((item) => parseFloat(item.percentage));
+
+        myPieChart = new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Investment Distribution",
+                data: dataPoints,
+                backgroundColor: [
+                  "rgba(255, 99, 132, 0.2)",
+                  "rgba(54, 162, 235, 0.2)",
+                  "rgba(255, 206, 86, 0.2)",
+                  "rgba(75, 192, 192, 0.2)",
+                ],
+                borderColor: [
+                  "rgba(255,99,132,1)",
+                  "rgba(54, 162, 235, 1)",
+                  "rgba(255, 206, 86, 1)",
+                  "rgba(75, 192, 192, 1)",
+                ],
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: "Investments",
+                font: {
+                  size: 18,
+                },
+                padding: {
+                  top: 10,
+                  bottom: 30,
+                },
+              },
+            },
+          },
+        });
+      }
     </script>
   </body>
 </html>
