@@ -60,6 +60,27 @@
         margin-left: 30px;
         margin-right: 30px;
       }
+      /* Table styles */
+      table {
+        width: 100%; /* Make the table width span the container */
+        border-collapse: collapse; /* Collapse borders so there is no space between them */
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd; /* Add a border to each cell */
+        padding: 8px; /* Add some padding for content inside cells */
+        text-align: left; /* Align text to left for all cells */
+      }
+
+      th {
+        background-color: #f2f2f2; /* Add a background color to headers */
+      }
+
+      /* Add classes for aligning text in 'td' */
+      .right-aligned {
+        text-align: right;
+      }
     </style>
   </head>
   <body>
@@ -73,29 +94,44 @@
 
     <div id="chart-container">
       <canvas id="mutual-funds-chart"></canvas>
+      <canvas id="stocks"></canvas>
+      <canvas id="fixed-deposits"></canvas>
       <canvas id="investment-chart"></canvas>
     </div>
 
     <div class="line"></div>
 
     <div id="investment-options">
-      <div class="tab" data-type="mutual-funds">Mutual Funds</div>
-      <div class="tab" data-type="fixed-deposits">Fixed Deposits</div>
-      <div class="tab" data-type="stocks">Stocks</div>
-      <div class="tab" data-type="loans">Loans</div>
+      <div class="tab" data-type="Mutual-Funds">Mutual Funds</div>
+      <div class="tab" data-type="Fixed-Deposits">Fixed Deposits</div>
+      <div class="tab" data-type="Stocks">Stocks</div>
+      <div class="tab" data-type="Loans">Loans</div>
     </div>
 
     <div id="investment-details">
-      <div id="mutual-funds-details" class="details-section">
+      <div id="Mutual-Funds-details" class="details-section">
         <!-- Mutual Funds Details -->
         Details about Mutual Funds...
       </div>
-      <!-- ... other details divs with their respective charts ... -->
+      <div id="Fixed-Deposits-details" class="details-section">
+        <!-- Fixed Deposits Details -->
+        Details about Fixed Deposits...
+      </div>
+      <div id="Stocks-details" class="details-section">
+        <!-- Changed from "stock-details" to "stocks-details" -->
+        <!-- Stock Details -->
+        Details about Stocks...
+      </div>
+      <div id="Loans-details" class="details-section">
+        <!-- Loans Details -->
+        Details about Loans...
+      </div>
     </div>
 
     <script>
       let myPieChart = null;
-      let specificTypeChart = null;
+      let myDyChart = null;
+      var charts = {};
 
       async function fetchCustomerIDs() {
         try {
@@ -123,7 +159,11 @@
         });
       }
 
-      function toggleDetails(investmentType) {
+      async function toggleDetails(investmentType) {
+        let FieldsToShow = [];
+        let getLabels = [];
+        let getDataPoints = [];
+        let ChartType = "";
         var customerId = document.getElementById("customer-select").value;
         if (!customerId) {
           alert("Please select a customer ID.");
@@ -135,11 +175,140 @@
           .forEach((div) => {
             div.style.display = "none"; // Hide all details
           });
-
+        console.log(investmentType);
         let detailsDiv = document.getElementById(investmentType + "-details");
-        detailsDiv.style.display = "block"; // Show the selected investment details
+        if (detailsDiv) {
+          detailsDiv.style.display = "block";
+        } else {
+          console.error("Element not found");
+        }
+        // var activeTab = document.querySelector(".tab.active");
+        // if (activeTab) {
+        //   activeTab.classList.remove("active");
+        // }
+        // detailsDiv.style.display = "block"; // Show the selected investment details
+        try {
+          let response = await fetch(
+            `http://localhost:3000/api/iacc/active/${customerId}`
+          );
+          let data = await response.json();
+          // filter for options
+          switch (investmentType) {
+            case "Stocks":
+              getLabels = createLabelCallback("STOCKNAME");
+              getDataPoints = createDataPointCallback("QUANTITY");
+              investType = "Stocks";
+              ChartType = "doughnut";
+              FieldsToShow = [
+                "STOCKID",
+                "STOCKNAME",
+                "PURCHASEPRICE",
+                "QUANTITY",
+              ];
+              break;
+            case "Mutual-Funds":
+              getLabels = createLabelCallback("FUNDNAME");
+              getDataPoints = createDataPointCallback("INVESTMENTAMOUNT");
+              investType = "Mutual Funds";
+              ChartType = "doughnut";
+              FieldsToShow = [
+                "MUTUALFUNDID",
+                "FUNDNAME",
+                "FUNDTYPE",
+                "NAV",
+                "INVESTMENTAMOUNT",
+              ];
+              break;
+            case "Fixed-Deposits":
+              getLabels = createLabelCallback("FIXEDDEPOSITID");
+              getDataPoints = createDataPointCallback("MATURITYAMOUNT");
+              ChartType = "doughnut";
+              investType = "Fixed Deposits";
+              FieldsToShow = [
+                "FIXEDDEPOSITID",
+                "PRINCIPALAMOUNT",
+                "INTERESTRATE",
+                "MATURITYDATE",
+                "MATURITYAMOUNT",
+              ];
+              break;
+            default:
+              throw new Error("Unknown account type");
+          }
+          let activeAccounts = data.activeAccounts.filter(
+            (account) => account.ACCOUNTTYPE === investType
+          );
+          // "loop on active accounts
+          let alldetails = [];
+          for (const account of activeAccounts) {
+            let detailsResponse = await fetch(
+              `http://localhost:3000/api/account/details?accountType=${investmentType}&investment_acc_id=${account.INVESTMENTACCOUNTID}`
+            );
+            let details = await detailsResponse.json();
+            alldetails.push(details);
+            // Process and display these details in your page
+          }
+          let flattenedDetails = alldetails.flat();
+          // Generate and display the dynamic table
+          let tableHTML = createDynamicTable(flattenedDetails, FieldsToShow);
+          detailsDiv.innerHTML = tableHTML;
+          UpdateSpecificChart(
+            flattenedDetails,
+            investmentType,
+            ChartType,
+            getLabels,
+            getDataPoints
+          ); // Update the specific chart
+        } catch (error) {
+          console.info("Info:", error);
+          detailsDiv.innerHTML = "No data available to show";
+        }
+      }
 
-        updateSpecificChart(customerId, investmentType); // Update the specific chart
+      function createLabelCallback(fieldName) {
+        return function (item) {
+          return item[fieldName];
+        };
+      }
+
+      // Higher-order function to create a callback that extracts data points
+      function createDataPointCallback(fieldName) {
+        return function (item) {
+          return item[fieldName]; // Assuming it's already a number, if not, parse it
+        };
+      }
+
+      function createDynamicTable(data, fieldsToShow) {
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          return "<p>No data available</p>";
+        }
+        const rightAlignedFields = ["PURCHASEPRICE", "QUANTITY"];
+        // Filter the headers based on the fieldsToShow
+        const headers = fieldsToShow || Object.keys(data[0]);
+        const headerRow = headers
+          .map((header) => `<th>${header}</th>`)
+          .join("");
+
+        // Generate table rows
+        const rows = data
+          .map((row) => {
+            const cells = headers
+              .map((header) => {
+                // Check if the current header should be right-aligned
+                let cellClass = rightAlignedFields.includes(header)
+                  ? "center-aligned"
+                  : "";
+                const cellValue = row[header] == null ? "" : row[header];
+                return `<td class="${cellClass}">${cellValue}</td>`;
+              })
+              .join("");
+            return `<tr>${cells}</tr>`;
+          })
+          .join("");
+
+        // Construct the table HTML
+        const tableHTML = `<table><thead><tr>${headerRow}</tr></thead><tbody>${rows}</tbody></table>`;
+        return tableHTML;
       }
 
       window.onload = async function () {
@@ -196,8 +365,32 @@
         return percentages;
       }
 
+      async function fetchInvestmentAccounts(customerId, investmentType) {
+        try {
+          let response = await fetch(
+            `http://localhost:3000/api/iacc/active/${customerId}`
+          );
+          let data = await response.json();
+          let activeAccounts = data.activeAccounts.filter(
+            (account) => account.ACCOUNTTYPE === investmentType
+          );
+
+          for (const account of activeAccounts) {
+            let details = await fetchAccountDetails(
+              investmentType,
+              account.INVESTMENTACCOUNTID
+            );
+            // Process and display these details as needed
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
       function updateChart(invest_data) {
-        var ctx = document.getElementById("investment-chart").getContext("2d");
+        var ctx = document
+          .getElementById("mutual-funds-chart")
+          .getContext("2d");
         if (myPieChart) {
           myPieChart.destroy();
         }
@@ -227,41 +420,57 @@
                 font: {
                   size: 18,
                 },
-                // padding: {
-                //   top: 10,
-                //   bottom: 30,
-                // },
               },
             },
           },
         });
       }
 
-      function updateSpecificChart(customerId, investmentType) {
-        var chartId = investmentType + "-chart";
-        var ctx = document.getElementById(chartId).getContext("2d");
-        if (specificTypeChart) {
-          specificTypeChart.destroy();
+      function UpdateSpecificChart(
+        invest_data,
+        investmentType,
+        ChartType,
+        getLabels,
+        getDataPoints
+      ) {
+        var ctx = document.getElementById("stocks").getContext("2d");
+        if (myDyChart) {
+          myDyChart.destroy();
         }
-        // Replace the following with your specific logic and data for the specific investment type chart
-        let dataPoints = [30, 70]; // Example data points
-        specificTypeChart = new Chart(ctx, {
-          type: "pie",
+
+        // Get labels and data points using the provided callback functions
+        let labels = invest_data.map((item) => getLabels(item));
+        let dataPoints = invest_data.map((item) =>
+          parseFloat(getDataPoints(item))
+        );
+
+        myDyChart = new Chart(ctx, {
+          type: ChartType,
           data: {
-            labels: ["Type A", "Type B"],
+            labels: labels,
             datasets: [
               {
                 label: investmentType + " Distribution",
                 data: dataPoints,
-                backgroundColor: ["#9999FF", "#FF9966"],
-                borderColor: ["#9999FF", "#FF9966"],
+                backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
+                borderColor: ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"],
                 borderWidth: 1,
+                hoverOffset: 4,
               },
             ],
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: investmentType,
+                font: {
+                  size: 18,
+                },
+              },
+            },
           },
         });
       }

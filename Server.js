@@ -58,6 +58,39 @@ app.get('/api/iacc/active/:customerId', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+// New endpoint to get account details
+app.get('/api/account/details', async (req, res) => {
+  try {
+    const { accountType, investment_acc_id } = req.query;
+    // const customerIdNumber = parseInt(customerId, 10); // Convert customerId to number
+    console.log(accountType,investment_acc_id);
+    const details = await fetchAccountDetails(accountType, investment_acc_id);
+    res.json(details);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Independent fetchAccountDetails function
+async function fetchAccountDetails(accountType,investment_acc_id) {
+  let collectionName;
+  switch (accountType) {
+    case 'Stocks':
+      collectionName = 'Stocks';
+      break;
+    case 'Mutual-Funds':
+      collectionName = 'MF';
+      break;
+    case 'Fixed-Deposits':
+      collectionName = 'FD';
+      break;
+    default:
+      throw new Error('Unknown account type');
+  }
+
+  const collection = db.collection(collectionName);
+  return collection.find({ INVESTMENTACCOUNTID:investment_acc_id}).toArray();
+}
 
 function calculateInvestmentPercentages(data) {
   let totalInvestment = 0;
