@@ -28,10 +28,9 @@ async function connectToMongoDB() {
 
 const db = client.db('WM_DB');
 // GET request handler for /customers
-app.get('/customers', async (req, res) => {
+    app.get('/customers', async (req, res) => {
     try {
         const collection = db.collection('Customer');
-
         // Using projection to fetch only the CUSTOMERID field
         const projection = { CUSTOMERID: 1, _id: 0 };
         const customers = await collection.find({}, { projection: projection }).toArray();
@@ -40,6 +39,17 @@ app.get('/customers', async (req, res) => {
     } catch (error) {
         res.status(500).send("Error fetching customers: " + error.message);
     }
+});
+
+app.get('/api/total-customers', async (req, res) => {
+  try {
+    const collection = db.collection('Customer');
+    // Counting the number of documents in the collection
+    const count = await collection.countDocuments();
+    res.status(200).json({ count });
+} catch (error) {
+    res.status(500).send("Error fetching customers: " + error.message);
+}
 });
 
 // To get investments of Active status of a particular Customer id

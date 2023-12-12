@@ -332,6 +332,7 @@
               let investment_percentage = calculateInvestmentPercentages(data);
               if (investment_percentage) {
                 updateChart(investment_percentage);
+                refreshdata();
               }
             } catch (error) {
               console.error("Error fetching data:", error);
@@ -339,6 +340,30 @@
           }
         });
       };
+
+      function refreshdata() {
+        if (myDyChart) {
+          myDyChart.destroy();
+        }
+        // Clear the innerHTML of all details sections
+        document
+          .querySelectorAll("#investment-details > div")
+          .forEach((div) => {
+            div.innerHTML = ""; // Clear the content
+          });
+
+        // Hide all details sections
+        document
+          .querySelectorAll("#investment-details > div")
+          .forEach((div) => {
+            div.style.display = "none";
+          });
+
+        // Remove the 'active' class from all tabs
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+      }
 
       function calculateInvestmentPercentages(data) {
         let totalInvestment = 0;

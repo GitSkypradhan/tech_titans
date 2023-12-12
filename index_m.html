@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Management Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      /* Basic reset */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+      }
+
+      /* Grid layout */
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      /* Tile styles */
+      .tile {
+        background-color: #ffffff;
+        border-radius: 5px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .tile-header {
+        font-size: 20px;
+        margin-bottom: 20px;
+      }
+
+      /* Chart containers */
+      .chart-container {
+        height: 300px; /* Fixed height for all charts */
+      }
+
+      canvas {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid-container">
+      <!-- Tiles for key metrics -->
+      <div class="tile">
+        <div class="tile-header">Total Number of Customers</div>
+        <div id="total-customers">Loading...</div>
+      </div>
+      <div class="tile">
+        <div class="tile-header">Total Active Accounts</div>
+        <div id="active-accounts">Loading...</div>
+      </div>
+      <div class="tile">
+        <div class="tile-header">Total Active Loan Accounts</div>
+        <div id="active-loan-accounts">Loading...</div>
+      </div>
+      <!-- Add more tiles as needed... -->
+
+      <!-- Chart for investment distribution -->
+      <div class="tile">
+        <div class="tile-header">Investment Distribution</div>
+        <div class="chart-container">
+          <canvas id="investment-distribution-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart for loans distribution -->
+      <div class="tile">
+        <div class="tile-header">Loans Distribution</div>
+        <div class="chart-container">
+          <canvas id="loans-distribution-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Add more charts as needed... -->
+    </div>
+
+    <script>
+      // Fetching and displaying total number of customers
+      async function fetchCustomerCount() {
+        try {
+          let response = await fetch(
+            "http://localhost:3000/api/total-customers"
+          );
+          let data = await response.json();
+          let customerCount = data.count;
+          return customerCount;
+        } catch (error) {
+          console.error("Error fetching customer count:", error);
+        }
+      }
+
+      async function fetchActiveAccounts() {
+        try {
+          let response = await fetch(
+            "http://localhost:3000/api/total-customers"
+          );
+          let data = await response.json();
+          let customerCount = data.count;
+          return customerCount;
+        } catch (error) {
+          console.error("Error fetching customer count:", error);
+        }
+      }
+
+      // Fetching and displaying total active accounts
+      //   fetch("api/active-accounts")
+      //     .then((response) => response.json())
+      //     .then((data) => {
+      //       document.getElementById("active-accounts").textContent = data.total;
+      //     });
+
+      // Fetching and displaying total active loan accounts
+      //   fetch("api/active-loan-accounts")
+      //     .then((response) => response.json())
+      //     .then((data) => {
+      //       document.getElementById("active-loan-accounts").textContent =
+      //         data.total;
+      //     });
+
+      // Replace the URLs above with your actual API endpoints
+
+      // Example function to create a pie chart
+      function createPieChart(canvasId, data) {
+        const ctx = document.getElementById(canvasId).getContext("2d");
+        new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: data.labels,
+            datasets: [
+              {
+                label: "Dataset 1",
+                data: data.values,
+                backgroundColor: [
+                  "rgb(255, 99, 132)",
+                  "rgb(54, 162, 235)",
+                  "rgb(255, 205, 86)",
+                ],
+                hoverOffset: 4,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+          },
+        });
+      }
+
+      // Example of initializing a chart
+      // This should be replaced with actual data fetching and chart initialization
+      createPieChart("investment-distribution-chart", {
+        labels: ["Stocks", "Bonds", "Real Estate"],
+        values: [300, 50, 100],
+      });
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const customerCount = await fetchCustomerCount();
+        if (customerCount !== undefined) {
+          document.getElementById("total-customers").textContent =
+            customerCount;
+        }
+        // You can also call other fetch functions here for active accounts, etc.
+      });
+      // Add more chart initializations as needed...
+    </script>
+  </body>
+</html>
